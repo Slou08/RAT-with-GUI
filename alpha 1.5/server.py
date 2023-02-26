@@ -51,6 +51,7 @@ def action_screenshot(client: socket.socket, content: ctk.CTkFrame):
     # in the bottom right corner is a button to take a new screenshot
 
     # get the first screenshot in assets/screenshots --if not available, make a black field
+    global screenshots
     screenshots = []
     for file in os.listdir(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots')):
         if file.endswith('.png'):
@@ -62,7 +63,7 @@ def action_screenshot(client: socket.socket, content: ctk.CTkFrame):
         return
 
     # get the first screenshot
-    screenshot = ctk.CTkLabel(master=content, image=Image.open(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', screenshots[0])))
+    screenshot = ctk.CTkLabel(master=content, image=ctk.CTkImage(Image.open(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', screenshots[0])), size=(500, 300)))
     screenshot.pack(pady=10, padx=20)
     inhalte.append(screenshot)
 
@@ -95,7 +96,7 @@ def action_screenshot_take(client: socket.socket, content: ctk.CTkFrame):
 def action_show_selected_screenshot(content: ctk.CTkFrame, select_menu: ctk.CTkComboBox):
     global inhalte
     # get the selected screenshot
-    screenshot = ctk.CTkLabel(content, image=os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', select_menu.get()))
+    screenshot = ctk.CTkLabel(master=content, image=ctk.CTkImage(Image.open(os.path.join(os.path.dirname(sys.argv[0]), 'assets', 'screenshots', select_menu.get())), size=(500, 300)))
     # show the screenshot and destroy the old one
     screenshot.pack(pady=10, padx=20)
     inhalte[0].destroy()
