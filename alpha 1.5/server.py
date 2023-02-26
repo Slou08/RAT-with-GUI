@@ -103,7 +103,7 @@ def action_show_selected_screenshot(content: ctk.CTkFrame, select_menu: ctk.CTkC
 
 
 def action_camera_image(client: socket.socket, content: ctk.CTkFrame):
-    
+    ...
 
 
 def gui(client: socket.socket, addr):
